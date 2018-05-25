@@ -1,0 +1,39 @@
+<apex:page Controller="testDelete" >
+    <apex:form > 
+    <apex:pageBlock >
+
+<apex:pageBlockButtons >
+    <apex:commandButton action="{!getRecs}" value="Pull" />
+ 
+ 
+ </apex:pageBlockButtons>
+<apex:pageBlockSection id="x">
+                        <apex:pageBlockTable value="{!l}" var="t" >
+    
+                            
+ <apex:column >
+     <apex:outputField value="{!t.JustTextField__c}" id="AccountNameDOM" > 
+                     
+                         <apex:inlineEditSupport showOnEdit="saveButton, cancelButton" 
+                        hideOnEdit="editButton" event="ondblclick"/>  
+         </apex:outputField>
+                </apex:column>                            
+                            
+              <apex:column value="{!t.JustTextField__c}"/>
+                            <apex:column value="{!t.JustTextField__c}"/>
+                            <apex:column value="{!t.Id}"/>
+                            <apex:column value="{!t.OwnerId}"/>
+                            <apex:column value="{!t.IsDeleted}"/>
+                            <apex:column value="{!t.Name}"/>
+                            <apex:column value="{!t.CreatedDate}"/>
+                            <apex:column value="{!t.LastModifiedDate}"/>
+                            <apex:column value="{!t.CreatedById}"/>
+                            <apex:column value="{!t.LastModifiedById}"/>
+                            <apex:column value="{!t.SystemModstamp}"/>
+                <apex:column value="{!t.JustTextField__c}"/>
+        </apex:pageBlockTable>
+    </apex:pageBlockSection>   
+       
+    </apex:pageBlock>
+         </apex:form>
+</apex:page>

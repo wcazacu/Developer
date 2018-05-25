@@ -1,0 +1,15 @@
+<apex:page controller="VCcontroller" extensions="VCextention" >
+    
+     <apex:form >
+   
+    
+<apex:commandButton value="Update message" action="{!updMsg}" reRender="myPageBlock" />
+    <apex:pageBlock id="myPageBlock">
+          
+        <apex:outputPanel >
+           {!VCtxt}   
+   
+            </apex:outputPanel>
+    </apex:pageBlock>
+         </apex:form>
+</apex:page>

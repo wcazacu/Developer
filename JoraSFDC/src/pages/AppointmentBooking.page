@@ -1,0 +1,106 @@
+<apex:page docType="html-5.0"  controller="AppoimentBooking" >
+    
+    <apex:outputPanel id="errorPanel">	
+        <apex:pageMessages />
+    </apex:outputPanel>	
+    
+    <apex:form >
+        <apex:outputPanel id="mainPanel">
+            <apex:pageBlock title="Create Appointment">
+               
+                
+                <apex:pageBlockSection title="Enter Date Range" columns="2">
+                    <apex:input value="{!nStart}" type="datetime-local" label="Start Time: " />
+                    <apex:input value="{!nEnd}" type="datetime-local" label="End Time: " />
+                    <apex:pageBlockSectionItem dataStyle="text-align:center;">
+                    	<apex:commandButton action="{!getPhysicians}" value="Find Available Physicians" rerender="mainPanel, errorPanel,avPhysicians"/>
+                    </apex:pageBlockSectionItem>
+                </apex:pageBlockSection>
+                
+                
+                <apex:pageBlockSection id="avPhysicians" title="Select a Physician" rendered="{!showPhysicians}">
+                    <apex:pageblockTable value="{!wrappedPhysicians}" var="ph" >
+                        <apex:column width="1">
+                            <apex:inputCheckbox value="{!ph.selected}" id="checkdone">
+                                <apex:actionSupport event="onchange" action="{!processSelectedPh}" reRender="avPhysicians,errorPanel"/>  
+                            </apex:inputCheckbox>
+                        </apex:column>
+                        <apex:column value="{!ph.wph.Name}"  headerValue="Physician Name"/>
+                        <apex:column value="{!ph.wph.Department__c}"  headerValue="Department"/>
+                        <apex:column value="{!ph.wph.Appointment_Price__c}"  headerValue="Price"/>
+                        <apex:column value="{!ph.wph.Email__c}"  headerValue="Email"/>
+                        <apex:column headerValue="Action">
+                            <apex:outputLink value="/{!ph.wph.id}">View</apex:outputLink>
+                        </apex:column>
+                    </apex:pageblockTable>
+                    
+
+                     
+                </apex:pageBlockSection>
+                
+                <apex:pageBlockSection id="src" title="Find Patient" columns="1" rendered="{!showPhysicians}">
+                  
+                        <apex:commandButton action="{!findPatients}" value="Search Patient" rerender="mainPanel, errorPanel, avPatients,buttns"/>
+                   
+                        <apex:inputText title="Filter" value="{!PatientName}" id="filter" html-placeholder="enter name or keyword"/>
+                </apex:pageBlockSection>
+                
+                
+                <apex:pageBlockSection id="avPatients" title="Select a Patient" rendered="{!showPatient}">
+                    <apex:pageBlockSectionItem dataStyle="text-align:center;">
+                        <apex:commandButton action="{!editPat}" value="Edit Patient" rerender="mainPanel, editPatient,errorPanel"/>
+                    </apex:pageBlockSectionItem> 
+                     <apex:pageBlockSectionItem />
+                    <apex:pageBlockSectionItem > 
+                        
+                        <apex:pageblockTable value="{!wrappedPatients}" var="p">
+                            <apex:column width="1">
+                                <apex:inputCheckbox value="{!p.selected}" id="checkdonep">
+                                    <apex:actionSupport event="onchange"  action="{!processSelectedP}"  reRender="mainPanel,errorPanel,buttns"/>  
+                                </apex:inputCheckbox>
+							</apex:column>
+                            <apex:column value="{!p.wp.Name}"  headerValue="Name"/>
+                            <apex:column value="{!p.wp.Email__c}"  headerValue="Email Address"/>
+                            <apex:column value="{!p.wp.Phone__c}"  headerValue="Phone Number"/>
+                            <apex:column headerValue="Action">
+                                <apex:outputLink value="/{!p.wp.id}">View</apex:outputLink>
+                            </apex:column>
+                        </apex:pageblockTable>
+                    </apex:pageBlockSectionItem> 
+                </apex:pageBlockSection>
+                
+                <apex:pageBlockSection id="buttns" columns="3"  html-style="width: 25%;" rendered="{!showButtns}">
+                    <apex:commandButton action="{!bookAppointment}" value="Book Appointment" rerender="mainPanel, errorPanel"/>
+                    <apex:commandButton action="{!sendPatientEmail}" value="Send Email to Patient" rerender="mainPanel, errorPanel"/>
+                    <apex:commandButton action="{!createCalendarEvent}" value="Create Google Event" rerender="mainPanel, errorPanel"/>
+                </apex:pageBlockSection> 
+                
+                <apex:pageBlockSection id="editPatient" title="Edit Patient" columns="1" rendered="{!editPatient}">
+                    <apex:inputField value="{!selectedPatient.Name}" label="Name" Style="text-align:left;"/>
+                    <apex:inputField value="{!selectedPatient.Email__c}" label="Email" Style="text-align:left;"/>
+                    <apex:inputField value="{!selectedPatient.Phone__c}" label="Phone" Style="text-align:left;"/>
+                    <apex:commandButton action="{!SavePatient}" value="Update" rerender="mainPanel"/>
+                </apex:pageBlockSection>
+                
+                
+                <apex:pageBlockSection title="Google Calendar Details" columns="2" id="calendarOutputPanel" rendered="{!isResponseReady}">
+                    <apex:outputText value="{!responseCalendarEvent.id}" label="Id: " />
+                    <apex:outputLink value="{!responseCalendarEvent.htmlLink}" id="theLink">Google Event Link</apex:outputLink>
+                    <apex:outputText value="{!responseCalendarEvent.created}" label="created: " />
+                    <apex:outputText value="{!responseCalendarEvent.summary}" label="Summary: " />
+                    <apex:outputText value="{!responseCalendarEvent.location}" label="Location: " />			
+                    <apex:outputText value="{!responseCalendarEvent.sequence}" label="Sequence: " />
+                    <apex:outputText value="{!responseCalendarEvent.start.gDatetime}" label="Start Time: " />
+                    <apex:outputText value="{!responseCalendarEvent.gEnd.gDatetime}" label="End Time: " />
+                    <apex:outputText value="{!responseCalendarEvent.attendees[0].email}" label="Physician email: " />
+                    
+                </apex:pageBlockSection>
+                
+                
+            </apex:pageBlock>
+            
+            
+        </apex:outputPanel>
+    </apex:form>
+    
+</apex:page>
