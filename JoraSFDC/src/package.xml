@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
     <types>
         <members>*</members>
@@ -14,11 +14,42 @@
     </types>
     <types>
         <members>*</members>
-        <name>ApexTrigger</name>
+        <name>StaticResource</name>
+    </types>
+    <types>
+        <members>Appointment_Management</members>
+        <name>CustomApplication</name>
+    </types>
+    <types>
+        <members>AppointmentsTestFolder</members>
+        <members>AppointmentsTestFolder/Physician_Appointments</members>
+        <name>Dashboard</name>
+    </types>
+    <types>
+        <members>Appointment__c-Appointment Layout</members>
+        <members>Event-Event Layout</members>
+        <members>EmailMessage-Email Message Layout</members>
+        <members>Google_App__c-GoogleApp Layout</members>
+        <members>Global-Global Layout</members>
+        <members>Physician__c-Physician Layout</members>
+        <members>Patient__c-Patient Layout</members>
+        <name>Layout</name>
+    </types>
+    <types>
+        <members>Appointment__c</members>
+        <members>Patient__c</members>
+        <members>Physician__c</members>
+        <members>Google_App__c</members>
+        <name>CustomObject</name>
+    </types>
+    <types>
+        <members>Appointment_Test_Reports</members>
+        <members>Appointment_Test_Reports/Appointments</members>
+        <name>Report</name>
     </types>
     <types>
         <members>*</members>
-        <name>StaticResource</name>
+        <name>CustomTab</name>
     </types>
     <version>36.0</version>
 </Package>

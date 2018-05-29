@@ -3,7 +3,7 @@
     <apiVersion>42.0</apiVersion>
     <availableInTouch>false</availableInTouch>
     <confirmationTokenRequired>false</confirmationTokenRequired>
-    <label>AppointmentBooking</label>
+    <label>GoogleC_iFrame</label>
     <packageVersions>
         <majorNumber>1</majorNumber>
         <minorNumber>17</minorNumber>
