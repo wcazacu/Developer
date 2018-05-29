@@ -1,0 +1,16 @@
+<apex:page controller="AppointmentGoogleEmbed">
+    <apex:form >
+        <apex:pageBlock title="Google Calendars">
+            <apex:pageBlockSection >
+                <apex:selectList value="{!selectedCalendar}" size="1" label="Select a Physician: " >
+                    <apex:selectOptions value="{!PhysiciansCalendars}" />
+                    <apex:actionSupport event="onchange" reRender="cal" />
+                </apex:selectList>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection id="cal"> 
+                <iframe src="{!selectedCalendar}" style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+        
+    </apex:form> 
+</apex:page>

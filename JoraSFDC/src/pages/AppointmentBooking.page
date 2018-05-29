@@ -79,7 +79,10 @@
                     <apex:inputField value="{!selectedPatient.Name}" label="Name" Style="text-align:left;"/>
                     <apex:inputField value="{!selectedPatient.Email__c}" label="Email" Style="text-align:left;"/>
                     <apex:inputField value="{!selectedPatient.Phone__c}" label="Phone" Style="text-align:left;"/>
+                    <apex:pageBlockSectionItem >
                     <apex:commandButton action="{!SavePatient}" value="Update" rerender="mainPanel"/>
+                    <apex:commandButton action="{!cancelEdit}" value="Cancel" rerender="mainPanel"/>
+                    </apex:pageBlockSectionItem>
                 </apex:pageBlockSection>
                 
                 

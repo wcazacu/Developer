@@ -1,4 +1,6 @@
 public class AppoimentBooking extends GoogleApiManager{
+    
+    //All variables needed for VF page to access
     Public List<Physician__c> availablePhysicians{get;set;}  
     Public datetime nStart {get;set;}
     Public datetime nEnd {get;set;}
@@ -15,52 +17,42 @@ public class AppoimentBooking extends GoogleApiManager{
     public Boolean isResponseReady {get {return responseCalendarEvent.id != null;}set;}
     public Boolean showButtns {get;set;}
     
+    //Innitializing a custom exception
     public class MyException extends Exception{}
     
-    
+    //This is the constructor class
     public AppoimentBooking(){
-        if(nStart==null){
-            nStart=datetime.now();
-        }
-        if(nEnd==null){
-            nEnd=datetime.now();
-        }
-        if (editPatient==null){
-            editPatient=false;
-        }
-        if (PatientName==null){
-            PatientName='';
-        }
+        if(nStart==null){nStart=datetime.now();}
+        if(nEnd==null){nEnd=datetime.now();}
+        if (editPatient==null){editPatient=false;}
+        if (PatientName==null){PatientName='';}
         showPatient=false;
         showPhysicians=false;
         showButtns=false;
         
         Google_App__c GoogleApp=[SELECT LastModifiedDate, expiresIn__c, Id, OwnerId, CreatedDate FROM Google_App__c order by LastModifiedDate desc limit 1][0];
         
-         try{
-            
+        try{
             if(GoogleApp.LastModifiedDate.addSeconds(3600) < DateTime.now() ) throw new MyException('User needs to authenticate');
-
         }
         
         catch(exception e){
             System.debug('ERROR:' + e);
             ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.FATAL,'Please go to "Google Apps" tab to Autenticate first');
             ApexPages.addMessage(myMsg);
-            
-            
         }
-      
     }
-    
+
+	//Pulls the list of available Physicians based on the given datetime interval
     Public void getPhysicians(){
-        
+        //find the Phisician ID from all appointments intersecting the interval
         List<Appointment__c> apts=[select Appointment_Physician__r.Id from Appointment__c where 
                                    (start_time__c >=:nStart and end_time__c <=:nEnd) OR
                                    (start_time__c <=:nStart and end_time__c >=:nStart) OR
                                    (start_time__c <=:nEnd and end_time__c >=:nEnd)
                                   ];
-        system.debug(apts);
+        system.debug(apts);//just to see the availability results
+        
         List<ID> Ph_Ap_ID=new list<id>();
         for(Appointment__c a :apts){
             Id x =[select id from Physician__c where id=:a.Appointment_Physician__c].Id;
@@ -69,9 +61,11 @@ public class AppoimentBooking extends GoogleApiManager{
             Ph_Ap_ID.add(x);
         }
         system.debug(Ph_Ap_ID);
+        //pull the list of available phisicians
         availablePhysicians=[SELECT Id, Name, Department__c, Appointment_Price__c, Email__c,Phone__c  FROM Physician__c where Not id in :Ph_Ap_ID];
-        if(availablePhysicians.size()>0){showPhysicians=true;}
+        if(availablePhysicians.size()>0){showPhysicians=true;} //enables the table display in VF page
         system.debug(showPhysicians);
+        //Wrapping available physicians
         List<phWrapper> phwl =new List<phWrapper>();
         for (Physician__c ph : availablePhysicians){
             phwl.add(new phWrapper(ph));
@@ -79,7 +73,7 @@ public class AppoimentBooking extends GoogleApiManager{
         wrappedPhysicians=phwl;
         showPhysicians=true;
     }
-    
+    //unwrap the choosen Ph and removes other records from the wrapped list
     public PageReference processSelectedPh(){
         
         List<phWrapper> w=new List<phWrapper>();
@@ -96,6 +90,20 @@ public class AppoimentBooking extends GoogleApiManager{
         return null;
     } 
     
+    //Search the patients by name    
+    public void findPatients(){
+        
+        List<Patient__c> pl=[select id, Name, Email__c, Phone__c  from Patient__c where Name like :('%'+PatientName+'%') limit 5];
+        List<pWrapper> pwl =new List<pWrapper>();
+        for (Patient__c p:pl){
+            pwl.add(new pWrapper(p));
+        }
+        wrappedPatients=pwl;
+        editPatient= false;
+        showPatient=true;
+    }    
+    
+    //unwrap the choosen Patient and removes other records from the wrapped list
     public PageReference processSelectedP(){
         if(wrappedPatients.size()>1 || selectedPatient==Null){
             List<pWrapper> w=new List<pWrapper>();
@@ -117,44 +125,31 @@ public class AppoimentBooking extends GoogleApiManager{
         return null;
     }
     
-    public void findPatients(){
-        
-        List<Patient__c> pl=[select id, Name, Email__c, Phone__c  from Patient__c where Name like :('%'+PatientName+'%') limit 5];
-        List<pWrapper> pwl =new List<pWrapper>();
-        for (Patient__c p:pl){
-            pwl.add(new pWrapper(p));
-        }
-        wrappedPatients=pwl;
-        editPatient= false;
-        showPatient=true;
-    }    
-    
-    
+    //Enables the edit page block section
     public void editPat(){
-        
-        
         try{
-            
             if(selectedPatient==null){
                 throw new MyException('');
             }
             editPatient= !editPatient;
             showPatient=!showPatient;
             showButtns=false;
-            
-        }
-        
+         }
         catch(exception e){
             System.debug('ERROR:' + e);
             ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.FATAL,'Please select a Patient to Edit');
             ApexPages.addMessage(myMsg);
-            
-            
         }
-        
     }
     
+	 //Cancel Edit
+    public void cancelEdit(){
+            editPatient= !editPatient;
+            showPatient=!showPatient;
+            showButtns=!showButtns;
+    }
     
+    //Saves the changes made on edit page
     public PageReference savePatient(){
         update selectedPatient;
         
@@ -164,7 +159,7 @@ public class AppoimentBooking extends GoogleApiManager{
         return null;
     } 
     
-    // This is our wrapper/container class.  
+    // This is Physician wrapper/container class.  
     public class phWrapper {
         public Physician__c wph {get; set;}
         public Boolean selected {get; set;}
@@ -176,6 +171,7 @@ public class AppoimentBooking extends GoogleApiManager{
         }
     }
     
+    // This is the Patient wrapper/container class.
     public class pWrapper {
         public Patient__c wp {get; set;}
         public Boolean selected {get; set;}
@@ -187,6 +183,7 @@ public class AppoimentBooking extends GoogleApiManager{
         }
     }
     
+    //inserts and appointment record
     public void bookAppointment(){
         try{
             Appointment__c appt=new Appointment__c();
@@ -195,30 +192,26 @@ public class AppoimentBooking extends GoogleApiManager{
             appt.End_Time__c=nEnd;
             appt.Appointment_Physician__c=selectedPhysician.Id;
             appt.Appointment_Patient__c=selectedPatient.Id;
-            
             insert appt;
-            
             bookedAppt=[select id,Appointment_Physician__r.Email__c, start_time__c,end_time__c from Appointment__c where id=:appt.Id];
         }
         catch(exception e){
             System.debug('ERROR:' + e);
             ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.FATAL,'Please select a Physician AND a Patient');
             ApexPages.addMessage(myMsg);
-            
-            
         }
         if(bookedAppt.Id!=null){
-           ApexPages.addmessage(new ApexPages.message(ApexPages.severity.CONFIRM,'The appointment was successfully booked in SFDC')); 
-            
+            ApexPages.addmessage(new ApexPages.message(ApexPages.severity.CONFIRM,'The appointment was successfully booked in SFDC')); 
         }
     }
     
+    //Sends confirmation to the patient email
     public void sendPatientEmail(){
         
         String address = selectedPatient.Email__c;
         String subject = 'Appointment Confirmation';
         String body =  'Dear <b>'+ selectedPatient.Name+'</b><BR />'
-            + 'Thank you booking the appointment with me today!'+'<BR />'+'<BR />'
+            + 'Thank you for booking the appointment with me today!'+'<BR />'+'<BR />'
             + 'The appointment is with our '+ selectedPhysician.Department__c  +' physician: ' +selectedPhysician.Name + '<BR />'
             + '<b>Start Time: </b>'+ bookedAppt.start_time__c + '<BR />' + '<b>End Time: </b>' + bookedAppt.end_time__c + '<BR />'
             + '<b>Appointment Price: </b>'+selectedPhysician.Appointment_Price__c+'$'+'<BR />'+'<BR />' 
@@ -234,12 +227,13 @@ public class AppoimentBooking extends GoogleApiManager{
         
         Messaging.SendEmailResult r = em.sendMail(addresses, subjects, messages);
         if(r.isSuccess()){
-           ApexPages.addmessage(new ApexPages.message(ApexPages.severity.CONFIRM,'Confirmation email was successfully sent to '+address)); 
+            ApexPages.addmessage(new ApexPages.message(ApexPages.severity.CONFIRM,'Confirmation email was successfully sent to '+address)); 
             
         }
         
     } 
-    //Google API Calls
+    
+    
     //calendar event object to be serialized and passed to the API
     
     public GoogleCalendarEvent inputCalendarEvent {
@@ -288,9 +282,7 @@ public class AppoimentBooking extends GoogleApiManager{
         set;
     }
     
-    
-    
-    
+    //Google API Calls
     public PageReference createCalendarEvent(){
         
         system.debug(inputCalendarEvent); 
@@ -311,7 +303,7 @@ public class AppoimentBooking extends GoogleApiManager{
                 ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.FATAL, calendarEventJsonOutput));
             else{
                 responsecalendarEvent.deserialize(calendarEventJsonOutput);
-                 
+                
             }
         }
         catch(Exception e){
@@ -321,5 +313,7 @@ public class AppoimentBooking extends GoogleApiManager{
         
         return null;
     }
+    
+   
     
 }
